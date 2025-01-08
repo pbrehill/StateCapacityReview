@@ -6,6 +6,7 @@ import openai
 import pandas as pd
 from tqdm import tqdm
 from config import OPENAI_API_KEY
+from citation_counts import get_citation_count
 
 openai.api_key = OPENAI_API_KEY
 
@@ -39,6 +40,11 @@ def classify_papers(csv_file, questions):
     data = pd.read_csv(csv_file, dtype=str)
     data = data.fillna('')
     data = fix_dataframe_encoding(data)
+
+    print("Getting citations")
+    data["Citations"] = [get_citation_count(doi) for doi in tqdm(data["DOI"])]
+
+    print("Answering questions")
 
     for index, question in tqdm(enumerate(questions), desc="Outer loop"):
         # Concatenate Title and Abstract for the prompt
